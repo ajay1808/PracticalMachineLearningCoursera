@@ -1,0 +1,89 @@
+---
+title: "Prediction Assignment Writeup"
+author: "K Ajay Rangan"
+date: "10/13/2020"
+output: html_document
+---
+  
+  
+## Aim
+To use data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants and predict the quality of the exercie for each instance.
+
+## Dataset
+The training data:
+  (https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv)
+The test data :
+  (https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv)
+
+A special thanks to  (http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har) for providing data for this project.
+
+The dataset contains data of 6 participants asked to perfrom various exercises using dumbbels in a correct manner and wrong manner. 
+
+## Libraries
+```{r ECHO=FALSE}
+library(knitr)
+library(caret)
+library(randomForest)
+library(corrplot)
+library(ggplot2)
+set.seed(4592)
+```
+## Loading the data
+```{r}
+traindata <- read.csv(url("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"))
+testdata <- read.csv(url("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"))
+
+inTrain <- createDataPartition(traindata$classe, p=0.7, list=FALSE)
+Trainingset <- traindata[inTrain,]
+Testingset <- traindata[-inTrain,]
+```
+
+Lets Have a look at the data
+```{r}
+dim(Trainingset)
+dim(Testingset)
+```
+Lets remove variables with low variance, variables that are more than 90% NA and Identification Variables which are the first 5 columns.
+```{r}
+NZV <- nearZeroVar(Trainingset)
+Trainingset <- Trainingset[, -NZV]
+Testingset  <- Testingset[, -NZV]
+AllNA    <- sapply(Trainingset, function(x) mean(is.na(x))) > 0.90
+Trainingset <- Trainingset[, AllNA==FALSE]
+Testingset  <- Testingset[, AllNA==FALSE]
+Trainingset <- Trainingset[, -(1:5)]
+Testingset  <- Testingset[, -(1:5)]
+dim(Trainingset)
+dim(Testingset)
+```
+
+Now lets check if we need to remove or modify variables due to high correlation
+
+```{r}
+corM <- cor(Trainingset[, -54])
+corrplot(corM, order = "FPC", method = "pie", type = "lower")
+```
+
+As we can see there are hardly any variables with high correlation but for few stray pair of variables. PCA may not be required. Even if we perform PCA the result will not be too different and it'll only increase runtime of the code.
+
+## Lets create the Model
+
+I'm going to use a Generalized Boosting method (GBM)to create a model.
+
+```{r}
+control <- trainControl(method="repeatedcv", number=4, repeats = 1)
+model <- train(classe ~ ., data=Trainingset, method="gbm",trControl=control, verbose = FALSE)
+model$finalModel
+```
+
+## Result using the Testing data
+
+```{r}
+predicted <- predict(model, newdata=Testingset)
+confusion <- confusionMatrix(predicted, Testingset$classe)
+confusion
+```
+
+## Conclusion
+
+The Model had an accuracy of 98.57% in the testing data. 
