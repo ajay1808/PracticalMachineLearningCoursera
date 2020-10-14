@@ -2,12 +2,14 @@
 title: "Prediction Assignment Writeup"
 author: "K Ajay Rangan"
 date: "10/13/2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
   
   
 ## Aim
-To use data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants and predict the quality of the exercie for each instance.
+To use data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants and predict the quality of the exercise for each instance.
 
 ## Dataset
 The training data:
@@ -87,3 +89,7 @@ confusion
 ## Conclusion
 
 The Model had an accuracy of 98.57% in the testing data. 
+```{r}
+testcases <- predict(model, newdata=testdata)
+testcases
+```

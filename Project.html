@@ -372,7 +372,7 @@ summary {
 
 <div id="aim" class="section level2">
 <h2>Aim</h2>
-<p>To use data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants and predict the quality of the exercie for each instance.</p>
+<p>To use data from accelerometers on the belt, forearm, arm, and dumbbell of 6 participants and predict the quality of the exercise for each instance.</p>
 </div>
 <div id="dataset" class="section level2">
 <h2>Dataset</h2>
@@ -482,6 +482,10 @@ confusion</code></pre>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
 <p>The Model had an accuracy of 98.57% in the testing data.</p>
+<pre class="r"><code>testcases &lt;- predict(model, newdata=testdata)
+testcases</code></pre>
+<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
+## Levels: A B C D E</code></pre>
 </div>
 
 
